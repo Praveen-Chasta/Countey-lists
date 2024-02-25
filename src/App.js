@@ -1,4 +1,5 @@
 import {Component} from 'react'
+
 import './App.css'
 
 const initialCountriesLists = [
@@ -76,85 +77,102 @@ const initialCountriesLists = [
 
 class App extends Component {
   state = {
-    initialCountries: initialCountriesLists,
-    visitedCountriesList: [],
+    countriesList: initialCountriesLists,
+    visitedCountry: [],
   }
 
-  removeItems = countryId => {
-    const {initialCountries, visitedCountriesList} = this.state
-    const updatedVisitedCountries = visitedCountriesList.filter(
-      country => country.id !== countryId,
-    )
-
-    const updatedInitialCountriesList = initialCountries.map(country => {
-      if (country.id === countryId) {
-        return {...country, isVisited: false}
+  onVisitedCountry = countryId => {
+    const {countriesList, visitedCountry} = this.state
+    const updatedList = countriesList.map(each => {
+      if (each.id === countryId) {
+        return {...each, isVisited: true}
       }
-      return country
+      return each
     })
-
+    const finalVisitedCountry = countriesList.filter(
+      each => each.id === countryId,
+    )
     this.setState({
-      initialCountries: updatedInitialCountriesList,
-      visitedCountriesList: updatedVisitedCountries,
+      countriesList: updatedList,
+      visitedCountry: [...visitedCountry, finalVisitedCountry],
     })
   }
 
-  onClickVisitCountries = countryId => {
-    const {initialCountries, visitedCountriesList} = this.state
-    const updatedCountriesList = initialCountries.map(country => {
-      if (country.id === countryId) {
-        return {...country, isVisited: true}
+  onRemoveCountry = countryId => {
+    const {countriesList, visitedCountry} = this.state
+    const updatedList = countriesList.map(each => {
+      if (each.id === countryId) {
+        return {...each, isVisited: false}
       }
-      return country
+      return each
     })
-
-    const visitedCountry = initialCountries.find(
-      country => country.id === countryId,
+    const finalVisitedCountry = visitedCountry.filter(
+      each => each.id !== countryId,
     )
-
     this.setState({
-      initialCountries: updatedCountriesList,
-      visitedCountriesList: [...visitedCountriesList, visitedCountry],
+      countriesList: updatedList,
+      visitedCountry: finalVisitedCountry,
     })
   }
 
   render() {
-    const {initialCountries, visitedCountriesList} = this.state
+    const {countriesList, visitedCountry} = this.state
+
     return (
-      <div>
-        <h1>Countries</h1>
-        <ul>
-          {initialCountries.map(eachCountry => (
-            <li key={eachCountry.id}>
-              {eachCountry.name}
-              {eachCountry.isVisited ? (
-                <button type="button">Visited</button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={this.onClickVisitCountries(eachCountry.id)}
-                >
-                  Visit
-                </button>
-              )}
+      <div className="bg-container">
+        <h1 className="heading">Countries</h1>
+        <ul className="countries-list">
+          {countriesList.map(each => (
+            <li className="listItems" key={each.id}>
+              <div className="list-container">
+                <p className="name">{each.name}</p>
+
+                {each.isVisited ? (
+                  <p className="button-1">Visited</p>
+                ) : (
+                  <button
+                    type="button"
+                    className="button-2"
+                    onClick={() => this.onVisitedCountry(each.id)}
+                  >
+                    Visit
+                  </button>
+                )}
+              </div>
             </li>
           ))}
         </ul>
-        <h1>Visited Countries</h1>
-        <ul>
-          {visitedCountriesList.map(each => (
-            <li>
-              {each.name}
-              {each.imageUrl}
-              <button type="button" onClick={this.removeItems(each.id)}>
-                Remove
-              </button>
+        <h1 className="heading-2">Visited Countries</h1>
+        <ul className="list-2">
+          {countriesList.map(each => (
+            <li key={each.id}>
+              <div className="list-container">
+                {each.isVisited && (
+                  <div className="country-list">
+                    <img
+                      src={each.imageUrl}
+                      alt="thumbnail"
+                      className="image"
+                    />
+                    <div className="country-name">
+                      <p className="name">{each.name}</p>
+                      <button
+                        type="button"
+                        className="button"
+                        onClick={() => this.onRemoveCountry(each.id)}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </li>
           ))}
         </ul>
+        {visitedCountry.length === 0 && <p>No Countries Visited Yet</p>}
       </div>
     )
   }
 }
-
 export default App
